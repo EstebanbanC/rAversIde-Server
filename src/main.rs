@@ -1,30 +1,28 @@
-use std::io::prelude::*;
-use std::net::TcpListener;
-use std::net::TcpStream;
-use std::fs;
+// main.rs
+#[macro_use] extern crate rocket;
 
-fn main() {
-    let ecouteur = TcpListener::bind("127.0.0.1:7878").unwrap();
+mod highlight;
+mod chatbot;
+mod rename;
+mod utils;
+mod analyze;
 
-    for flux in ecouteur.incoming() {
-        let flux = flux.unwrap();
+use rocket::launch;
 
-        gestion_connexion(flux);
-    }
+// Endpoint pour la page d'accueil
+#[get("/")]
+pub fn index() -> &'static str {
+    "Hello, world!"
 }
 
-fn gestion_connexion(mut flux: TcpStream) {
-    let mut tampon = [0; 1024];
-    flux.read(&mut tampon).unwrap();
-
-    let contenu = fs::read_to_string("./src/hello.html").unwrap();
-
-    let reponse = format!(
-        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
-        contenu.len(),
-        contenu
-    );
-
-    flux.write(reponse.as_bytes()).unwrap();
-    flux.flush().unwrap();
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes![
+        utils::comments, 
+        highlight::highlight_address, 
+        rename::rename_variable, 
+        chatbot::handle_chatbot,
+        analyze::analyze
+    ])
 }
+
