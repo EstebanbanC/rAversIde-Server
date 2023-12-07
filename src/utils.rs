@@ -1,9 +1,10 @@
 use reqwest::Client;
 use std::env;
 use crate::analyze::{ChatAPIRequest, ChatAPIResponse, ParsedChatAPIResponse, FormattedChatResponse};
+use crate::rename::{ParsedRenamedResponse,RenameResponse};
 use serde_json;
 
-pub async fn ask_chat_gpt(prompt: String) -> Result<String, reqwest::Error> {
+pub async fn ask_chat_gpt(prompt: String, requete:&str) -> Result<String, reqwest::Error> {
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not set");
     let client = Client::new();
     let request_body = ChatAPIRequest {
@@ -25,24 +26,50 @@ pub async fn ask_chat_gpt(prompt: String) -> Result<String, reqwest::Error> {
         .expect("Erreur lors de la désérialisation de la réponse");
     
     if let Some(choice) = chat_api_response.choices.get(0) {
-        let parsed_response: ParsedChatAPIResponse = serde_json::from_str(&choice.message.content)
-            .expect("Erreur lors de la désérialisation de la réponse de ChatGPT");
-    
-        let formatted_response = FormattedChatResponse {
-            comment: parsed_response.comment.into_iter().map(|(address, comment, color)| {
-                vec![address, comment, color]
-            }).collect(),
-        };
-    
-        let json_response = serde_json::to_string(&formatted_response)
-            .expect("Erreur lors de la sérialisation de la réponse formatée");
-    
-        Ok(json_response)
+        if requete == "analyze"
+        {
+            let parsed_response: ParsedChatAPIResponse = serde_json::from_str(&choice.message.content)
+                .expect("Erreur lors de la désérialisation de la réponse de ChatGPT");
+        
+            let formatted_response = FormattedChatResponse {
+                comment: parsed_response.comment.into_iter().map(|(address, comment, color)| {
+                    vec![address, comment, color]
+                }).collect(),
+            };
+        
+            let json_response = serde_json::to_string(&formatted_response)
+                .expect("Erreur lors de la sérialisation de la réponse formatée");
+        
+            Ok(json_response)
+        }
+        else if requete == "rename"
+        {
+            let parsed_response: ParsedRenamedResponse = serde_json::from_str(&choice.message.content)
+                .expect("Erreur lors de la désérialisation de la réponse de ChatGPT");
+        
+            let formatted_response = RenameResponse {
+                rename: parsed_response.rename.into_iter().map(|(r#type, old_name, new_name)| {
+                    vec![r#type, old_name, new_name]
+                }).collect(),
+            };
+        
+            let json_response = serde_json::to_string(&formatted_response)
+                .expect("Erreur lors de la sérialisation de la réponse formatée");
+        
+            Ok(json_response)
+        }
+        else if requete == "chatbot"
+        {
+            Ok(choice.message.content.clone())
+        }
+        else
+        {
+            Ok("Pas de réponse disponible".to_string())
+        }
     } else {
         Ok("Pas de réponse disponible".to_string())
     }
 }
-
 
 
 

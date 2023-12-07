@@ -1,6 +1,4 @@
 use rocket::serde::{json::Json, Deserialize, Serialize};
-use reqwest::Client;
-use std::env;
 use std::collections::HashMap;
 
 use crate::utils::ask_chat_gpt;
@@ -41,10 +39,9 @@ pub struct AssemblerCodeLine {
 
 #[derive(Deserialize)]
 pub struct CodeAnalysisRequest {
-    pub context: String,
     pub action: String,
     pub r#type: String,
-    pub codeAsm: HashMap<String, Vec<Vec<String>>>, // Utiliser une HashMap
+    pub code_asm: HashMap<String, Vec<Vec<String>>>, // Utiliser une HashMap
 }
 
 #[derive(Serialize, Deserialize)]
@@ -88,7 +85,7 @@ pub async fn analyze(post_data: Json<CodeAnalysisRequest>) -> String {
     let mut formatted_code_asm = String::new();
 
     // Itérer sur chaque fonction dans la HashMap
-    for (function_name, lines) in &post_data.codeAsm {
+    for (function_name, lines) in &post_data.code_asm {
         formatted_code_asm.push_str(&format!("Fonction {}:\n", function_name));
         for line in lines {
             if line.len() == 2 {
@@ -102,7 +99,7 @@ pub async fn analyze(post_data: Json<CodeAnalysisRequest>) -> String {
 
 
 
-    match ask_chat_gpt(full_prompt).await {
+    match ask_chat_gpt(full_prompt, "analyze").await {
         Ok(response) => response,
         Err(_) => "Erreur lors de la communication avec ChatGPT".to_string(),
     }
