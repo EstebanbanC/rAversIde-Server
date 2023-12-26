@@ -26,7 +26,21 @@ pub struct ParsedRenamedResponse {
 }
 
 
-pub const RENAME_PROMPT: &str = r#"Suggère des noms plus descriptifs pour les fonctions et variables suivantes en conservant leur signification initiale. Le renommage doit améliorer la lisibilité et la compréhension du code. Pour chaque élément, fournis un nom plus approprié.
+pub const RENAME_FUNCTION_PROMPT: &str = r#"Suggère des noms plus descriptifs pour les fonctions suivantes en conservant leur signification initiale. Le renommage doit améliorer la lisibilité et la compréhension du code. Pour chaque élément, fournis un nom plus approprié.
+
+Liste des éléments à renommer :
+{rename_list}
+
+Format de réponse attendu :
+{
+  "rename": [
+    ["type", "ancien_nom", "nouveau_nom"]
+    // Autres éléments ici
+  ]
+}"#;
+
+
+pub const RENAME_VARIABLE_PROMPT: &str = r#"Suggère des noms plus descriptifs pour les variables des fonctions suivantes en conservant leur signification initiale. Le renommage doit améliorer la lisibilité et la compréhension du code. Pour chaque élément, fournis des noms de variables plus approprié.
 
 Liste des éléments à renommer :
 {rename_list}
@@ -43,10 +57,21 @@ Format de réponse attendu :
 
 
 // Endpoint pour la fonction rename
-#[post("/rename", data = "<rename_data>")]
-pub async fn rename(rename_data: Json<RenameRequest>) -> String {
-    let formatted_data = format_rename_data(&rename_data);
-    let full_prompt = RENAME_PROMPT.replace("{rename_list}", &formatted_data);
+#[post("/renameFunction", data = "<rename_function_data>")]
+pub async fn rename_function(rename_function_data: Json<RenameRequest>) -> String {
+    let formatted_data = format_rename_data(&rename_function_data);
+    let full_prompt = RENAME_FUNCTION_PROMPT.replace("{rename_list}", &formatted_data);
+
+    match ask_chat_gpt(full_prompt, "rename").await {
+        Ok(response) => response,
+        Err(_) => "Erreur lors de la communication avec ChatGPT".to_string(),
+    }
+}
+
+#[post("/renameVariable", data = "<rename_variable_data>")]
+pub async fn rename_variable(rename_variable_data: Json<RenameRequest>) -> String {
+    let formatted_data = format_rename_data(&rename_variable_data);
+    let full_prompt = RENAME_VARIABLE_PROMPT.replace("{rename_list}", &formatted_data);
 
     match ask_chat_gpt(full_prompt, "rename").await {
         Ok(response) => response,

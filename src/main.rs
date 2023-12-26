@@ -20,7 +20,8 @@ fn rocket() -> _ {
     rocket::build().mount("/", routes![
         utils::comments, 
         highlight::highlight_address, 
-        rename::rename, 
+        rename::rename_function, 
+        rename::rename_variable,
         chatbot::handle_chatbot,
         analyze::analyze
     ])
