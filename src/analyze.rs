@@ -1,3 +1,4 @@
+//analyze.rs
 use rocket::serde::{json::Json, Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -20,12 +21,14 @@ pub struct ChatMessageContent {
 }
 
 #[derive(Serialize)]
+#[cfg_attr(test, derive(Deserialize))]
 pub struct ChatAPIRequest {
     pub model: String,
     pub messages: Vec<UserChatMessage>,
 }
 
 #[derive(Serialize)]
+#[cfg_attr(test, derive(Deserialize))]
 pub struct UserChatMessage {
     pub role: String,
     pub content: String,
@@ -42,9 +45,10 @@ pub struct CodeAnalysisRequest {
     pub action: String,
     pub r#type: String,
     pub code_asm: HashMap<String, Vec<Vec<String>>>, // Utiliser une HashMap
+    pub code_c: HashMap<String, String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct FormattedChatResponse {
     pub comment: Vec<Vec<String>>,
 }
@@ -92,10 +96,13 @@ pub async fn analyze(post_data: Json<CodeAnalysisRequest>) -> String {
                 formatted_code_asm.push_str(&format!("{}: {}\n", line[0], line[1]));
             }
         }
-        formatted_code_asm.push_str("\n"); // Ajoute un saut de ligne entre les fonctions
+        formatted_code_asm.push_str("\n"); 
     }
 
-    let full_prompt = ANALYZE_PROMPT.replace("{code_assembleur}", &formatted_code_asm);
+    let code_c_json = serde_json::to_string(&post_data.code_c)
+    .unwrap_or_else(|_| "Erreur lors de la conversion en JSON".to_string());
+
+    let full_prompt = ANALYZE_PROMPT.replace("{code_assembleur}", &formatted_code_asm).replace("{code_decompile}", &code_c_json);
 
 
 

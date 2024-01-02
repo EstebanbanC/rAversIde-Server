@@ -1,7 +1,12 @@
-use rocket::serde::{json::Json, Deserialize};
+//chatbot.rs
+use rocket::serde::{json::Json, Deserialize, Serialize};
+use reqwest::Client;
+use std::{env, string};
 use std::collections::HashMap;
+use serde_json;
 
 use crate::utils::ask_chat_gpt;
+use crate::analyze::{ChatAPIRequest, ChatAPIResponse, ParsedChatAPIResponse, FormattedChatResponse, ChatChoice, ChatMessageContent, UserChatMessage};
 // Définition des structures pour la communication avec l'API ChatGPT
 
 #[derive(Deserialize)]
@@ -9,7 +14,7 @@ pub struct QuestionRequest {
     pub action: String,
     pub question: String,
     pub code_asm: HashMap<String, Vec<Vec<String>>>, // Utiliser une HashMap
-
+    pub code_c: HashMap<String, String>,
 }
 
 // Constante pour la partie fixe du prompt utilisée dans chatbot
@@ -45,7 +50,9 @@ pub async fn handle_chatbot(post_data: Json<QuestionRequest>) -> String {
         formatted_code_asm.push_str("\n"); // Ajoute un saut de ligne entre les fonctions
     }
 
-    let full_prompt = CHATBOT_PROMPT.replace("{code_assembleur}", &formatted_code_asm).replace("{question}", &post_data.question);
+    let code_c_json = serde_json::to_string(&post_data.code_c)
+    .unwrap_or_else(|_| "Erreur lors de la conversion en JSON".to_string());
+    let full_prompt = CHATBOT_PROMPT.replace("{code_assembleur}", &formatted_code_asm).replace("{question}", &post_data.question).replace("{code_decompile}", &code_c_json);
 
 
 

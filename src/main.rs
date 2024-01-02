@@ -26,4 +26,3 @@ fn rocket() -> _ {
         analyze::analyze
     ])
 }
-
