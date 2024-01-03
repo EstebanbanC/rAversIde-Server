@@ -1,3 +1,3 @@
 #!/bin/bash
 
-OPENAI_API_KEY=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 cargo run
+OPENAI_API_KEY=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 cargo run
