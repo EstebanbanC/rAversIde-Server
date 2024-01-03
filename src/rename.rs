@@ -47,9 +47,9 @@ Format de réponse attendu :
 }"#;
 
 
-pub const RENAME_VARIABLE_PROMPT: &str = r#"Suggère des noms plus descriptifs pour les variables des fonctions suivantes en conservant leur signification initiale. Le renommage doit améliorer la lisibilité et la compréhension du code. Pour chaque élément, fournis des noms de variables plus approprié.
+pub const RENAME_VARIABLE_PROMPT: &str = r#"Suggère des noms plus descriptifs pour les variables des fonctions suivantes en conservant leur signification initiale et en prenant en compte le contexte (code). Le renommage doit améliorer la lisibilité et la compréhension du code. Pour chaque élément, fournis des noms de variables plus approprié.
 
-Liste des éléments à renommer :
+Liste des éléments à renommer et SEULEMENT ceux-ci:
 {rename_list}
 
 Code Décompilé:

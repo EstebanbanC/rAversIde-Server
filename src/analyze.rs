@@ -60,13 +60,17 @@ pub struct ParsedChatAPIResponse {
 
 
 // Constante pour la partie fixe du prompt utilisée dans chatbot
-pub const ANALYZE_PROMPT: &str = r#"Analyse le code assembleur et le code décompilé suivant pour détecter des vulnérabilités spécifiques. Utilise les critères de vulnérabilité suivants : overflow de tampon, utilisation de fonctions non sécurisées (ex. gets, strcpy, rand), erreurs de formatage de chaînes, et tout autre problème de sécurité potentiel. Pour chaque vulnérabilité détectée, ajoute un commentaire directement sur la ligne concernée dans le format suivant :
+pub const ANALYZE_PROMPT: &str = r#"
+Analyse le code assembleur et le code décompilé suivant pour détecter des vulnérabilités spécifiques et identifier les patterns cryptographiques. L'objectif est d'aider des reverseurs a comprendre plus efficacement les informations cruciales.
 
-- Adresse ou ligne où la vulnérabilité a été détectée
-- Description détaillée de la vulnérabilité, incluant le type de vulnérabilité et pourquoi elle est problématique
-- Niveau de gravité indiqué par une couleur : rouge pour les vulnérabilités critiques, orange pour les vulnérabilités moyennes, jaune pour les vulnérabilités mineures.
+Vérifie les critères de vulnérabilité suivants : overflow de tampon, utilisation de fonctions non sécurisées (ex. gets, strcpy, rand), erreurs de formatage de chaînes, utilisation incorrecte des algorithmes cryptographiques, et tout autre problème de sécurité potentiel. (Ce ne sont que des exemples, tu dois être très précis dans les explications que tu donnes)
 
-Assure-toi de ne commenter que les lignes où des vulnérabilités ont été identifiées. Ignorer les lignes sans vulnérabilités.
+Pour chaque élément détecté, qu'il s'agisse d'une vulnérabilité ou d'un élément cryptographique, ajoute un commentaire directement sur la ligne concernée avec les détails suivants :
+- Adresse ou ligne concernée
+- Description détaillée, incluant le type d'élément détecté et pourquoi il est important ou problématique
+- Niveau de gravité ou d'importance, indiqué par une couleur : rouge pour les éléments critiques, orange pour les moyens, jaune pour les mineurs.
+
+Assure-toi de ne commenter que les lignes pertinentes.
 
 Code Assembleur:
 {code_assembleur}
@@ -81,6 +85,7 @@ Format de réponse attendu :
     // Autres commentaires ici
   ]
 }"#;
+
 
 
 // Endpoint pour le chatbot
