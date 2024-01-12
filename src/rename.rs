@@ -7,7 +7,6 @@ use std::collections::HashMap;
 #[derive(Serialize, Deserialize)]
 pub struct RenameRequest {
     pub items: Vec<RenameItem>,
-    pub code_asm: HashMap<String, Vec<Vec<String>>>, // Utiliser une HashMap
     pub code_c: HashMap<String, String>,
 }
 
@@ -35,9 +34,6 @@ Liste des éléments à renommer :
 Code Décompilé:
 {code_decompile}
 
-Code Assembleur:
-{code_assembleur}
-
 Format de réponse attendu :
 {
   "rename": [
@@ -55,9 +51,6 @@ Liste des éléments à renommer et SEULEMENT ceux-ci:
 Code Décompilé:
 {code_decompile}
 
-Code Assembleur:
-{code_assembleur}
-
 Format de réponse attendu :
 {
   "rename": [
@@ -73,26 +66,10 @@ Format de réponse attendu :
 #[post("/renameFunction", data = "<rename_function_data>")]
 pub async fn rename_function(rename_function_data: Json<RenameRequest>) -> String {    
 
-    let json = serde_json::to_string(&rename_function_data.code_asm)
-    .unwrap_or_else(|_| "Erreur lors de la conversion en JSON".to_string());
 
-    println!("{}", json);
-    let mut formatted_code_asm = String::new();
-
-    // Itérer sur chaque fonction dans la HashMap
-    for (function_name, lines) in &rename_function_data.code_asm {
-        formatted_code_asm.push_str(&format!("Fonction {}:\n", function_name));
-        for line in lines {
-            if line.len() == 2 {
-                formatted_code_asm.push_str(&format!("{}: {}\n", line[0], line[1]));
-            }
-        }
-        formatted_code_asm.push_str("\n"); // Ajoute un saut de ligne entre les fonctions
-    }
     let code_c_json = serde_json::to_string(&rename_function_data.code_c)
     .unwrap_or_else(|_| "Erreur lors de la conversion en JSON".to_string());
     let full_prompt = RENAME_FUNCTION_PROMPT.replace("{rename_list}", &format_rename_data(&rename_function_data))
-    .replace("{code_assembleur}", &formatted_code_asm)
     .replace("{code_decompile}", &code_c_json);
 
     match ask_chat_gpt(full_prompt, "rename").await {
@@ -105,24 +82,9 @@ pub async fn rename_function(rename_function_data: Json<RenameRequest>) -> Strin
 #[post("/renameVariable", data = "<rename_variable_data>")]
 pub async fn rename_variable(rename_variable_data: Json<RenameRequest>) -> String {
 
-    let json = serde_json::to_string(&rename_variable_data.code_asm)
-    .unwrap_or_else(|_| "Erreur lors de la conversion en JSON".to_string());
-    println!("{}", json);
-    let mut formatted_code_asm = String::new();
-
-    // Itérer sur chaque fonction dans la HashMap
-    for (function_name, lines) in &rename_variable_data.code_asm {
-        formatted_code_asm.push_str(&format!("Fonction {}:\n", function_name));
-        for line in lines {
-            if line.len() == 2 {
-                formatted_code_asm.push_str(&format!("{}: {}\n", line[0], line[1]));
-            }
-        }
-        formatted_code_asm.push_str("\n"); // Ajoute un saut de ligne entre les fonctions
-    }
     let code_c_json = serde_json::to_string(&rename_variable_data.code_c)
     .unwrap_or_else(|_| "Erreur lors de la conversion en JSON".to_string());
-    let full_prompt = RENAME_VARIABLE_PROMPT.replace("{rename_list}", &format_rename_data(&rename_variable_data)).replace("{code_assembleur}", &formatted_code_asm).replace("{code_decompile}", &code_c_json);
+    let full_prompt = RENAME_VARIABLE_PROMPT.replace("{rename_list}", &format_rename_data(&rename_variable_data)).replace("{code_decompile}", &code_c_json);
 
     match ask_chat_gpt(full_prompt, "rename").await {
         Ok(response) => response,
