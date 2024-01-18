@@ -92,7 +92,7 @@ pub async fn rename_variable(rename_variable_data: Json<RenameRequest>) -> Strin
     }
 }
 
-// Fonction pour formater les données de renommage
+// Fonction pour les données de renommage
 fn format_rename_data(rename_data: &Json<RenameRequest>) -> String {
     let mut formatted_data = String::new();
     for item in &rename_data.items {
