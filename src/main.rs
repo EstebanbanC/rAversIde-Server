@@ -6,6 +6,7 @@ mod chatbot;
 mod rename;
 mod utils;
 mod analyze;
+mod test;
 use futures::SinkExt;
 use rocket::launch;
 use tokio::sync::broadcast;

@@ -15,6 +15,7 @@ mockall = "0.9"
 futures = "0.3"
 openai_api_rust = "0.1.8"
 tokio-tungstenite = "0.15"
+mockito = "0.25"
 
 [dependencies.rocket_contrib]
 version = "0.4.10"
