@@ -9,8 +9,8 @@ mod analyze;
 use futures::SinkExt;
 use rocket::launch;
 use tokio::sync::broadcast;
-use tokio_tungstenite::{accept_async, tungstenite::{protocol::Message}, WebSocketStream};
-use tokio::{net::{TcpListener, TcpStream}};
+use tokio_tungstenite::{accept_async, tungstenite::protocol::Message, WebSocketStream};
+use tokio::net::{TcpListener, TcpStream};
 use crate::chatbot::WsChannel;
 
 async fn handle_connection(mut ws_stream: WebSocketStream<TcpStream>, mut rx: broadcast::Receiver<String>) {
