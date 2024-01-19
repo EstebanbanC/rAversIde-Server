@@ -139,7 +139,7 @@ pub fn comments(comment: String) -> String {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{analyze::{UserChatMessage, CodeAnalysisRequest, analyze}, chatbot::{QuestionRequest, handle_chatbot}, rename::{RenameRequest, RenameItem, rename_function}};
+    use crate::{analyze::{CodeAnalysisRequest, analyze}, rename::{RenameRequest, RenameItem, rename_function}};
 
     use super::*;
     use rocket::serde::json::Json;
