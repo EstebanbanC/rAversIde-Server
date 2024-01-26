@@ -128,9 +128,3 @@ pub async fn ask_chat_gpt_chatbot(prompt: String, tx: tokio::sync::broadcast::Se
     Ok(())
 }
 
-// Endpoint pour les commentaires
-#[get("/comments/<comment>")]
-pub fn comments(comment: String) -> String {
-    let comment_ai = "here is the response of the AI";
-    format!("Comment is {}, the response is : \n{}",comment, comment_ai)
-}

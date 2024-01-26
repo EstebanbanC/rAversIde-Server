@@ -1,7 +1,6 @@
 // main.rs
 #[macro_use] extern crate rocket;
 
-mod highlight;
 mod chatbot;
 mod rename;
 mod utils;
@@ -26,7 +25,7 @@ async fn handle_connection(mut ws_stream: WebSocketStream<TcpStream>, mut rx: br
     }
 }
 
-// Endpoint pour la page d'accueil
+// Endpoint pour la page d'accueil et test
 #[get("/")]
 pub async fn index() -> &'static str {
     // if let Err(e) = ask_chat_gpt_chatbot("Hello!".to_string()).await {
@@ -56,8 +55,6 @@ async fn rocket() -> _ {
     rocket::build()
         .manage(WsChannel::new(tx_clone))
         .mount("/", routes![
-            utils::comments,    
-            highlight::highlight_address, 
             rename::rename_function, 
             rename::rename_variable,
             chatbot::handle_chatbot,
